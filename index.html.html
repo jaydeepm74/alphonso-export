@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alphonso Export Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Mukta:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday-work: a classroom tool that feels like a real exporter's worksheet
+   IDEA the printed label on an Alphonso export carton (GI stamp, HS code, destination, box count)
+   PICTURE a live export-carton label that fills in as students change every input below
+   COLOUR mango saffron ground band, leaf green support, deep ink, ripe-red accent for risk
+   TYPE Baloo 2 (Indian signage feel) + Mukta
+   LAYOUT laptop: title + label side by side in a saffron band, six step tabs, a working panel; phone: title, label, tabs, panel */
+:root{color-scheme:light dark;--bg:light-dark(#fffdf6,#14120c);--ink:light-dark(#221a08,#f6efdc);--mut:light-dark(#6b5b37,#c9bc98);--band:light-dark(#ffb71b,#3a2a06);--bandink:light-dark(#221a08,#ffe6a6);--card:light-dark(#ffffff,#1f1b11);--line:light-dark(#e8d9b3,#4a3f24);--leaf:light-dark(#2f7d32,#7fd483);--leafbg:light-dark(#e6f4e3,#1d3320);--red:light-dark(#c62828,#ff8a80);--redbg:light-dark(#fde5e2,#3a1b18);--sun:light-dark(#fff1c7,#33290f)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.55 Mukta,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Baloo 2",Mukta,sans-serif;line-height:1.05;letter-spacing:-.02em;margin:0}
+h1{font-size:clamp(32px,5vw,50px);text-wrap:balance}
+h2{font-size:clamp(24px,3vw,32px);margin-bottom:6px}
+h3{font-size:20px;margin-bottom:4px}
+p{margin:0 0 10px}
+.band{padding:clamp(24px,4vw,52px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+.top{background:var(--band);color:var(--bandink)}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:clamp(20px,4vw,48px);align-items:center}
+.hero p{font-size:18px;max-width:34em}
+.small{font-size:14px;color:var(--mut)}
+.top .small{color:inherit;opacity:.8}
+.label{background:var(--card);color:var(--ink);border:3px solid var(--ink);border-radius:14px;padding:18px 20px;position:relative;box-shadow:8px 8px 0 color-mix(in srgb,var(--ink) 22%,transparent)}
+.label .hd{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border-bottom:2px dashed var(--line);padding-bottom:10px;margin-bottom:10px}
+.label .brand{font-family:"Baloo 2";font-weight:800;font-size:26px;line-height:1}
+.stamp{flex:none;width:86px;height:86px;border-radius:50%;border:3px solid var(--leaf);color:var(--leaf);display:grid;place-items:center;text-align:center;font:800 13px/1.1 "Baloo 2";transform:rotate(-12deg)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.kv span{display:block;font-size:13px;color:var(--mut)}
+.kv b{font-family:"Baloo 2";font-size:21px;line-height:1.15;white-space:nowrap}
+.kv b.big{font-size:clamp(26px,4vw,34px);color:var(--leaf)}
+.kv b.bad{color:var(--red)}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+.tabs a{display:flex;align-items:center;gap:8px;min-height:44px;padding:6px 14px;border:2px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-weight:700;background:var(--card)}
+.tabs a i{font-style:normal;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--band);color:#221a08;font-size:14px}
+.tabs a[aria-current=page]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.panel{display:none}.panel.on{display:block}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.box.sun{background:var(--sun)}.box.leaf{background:var(--leafbg)}.box.red{background:var(--redbg)}
+.ladder div{border-radius:10px;padding:10px 14px;margin-bottom:8px;background:var(--sun)}
+.ladder div:nth-child(2){margin-left:5%}.ladder div:nth-child(3){margin-left:10%;background:var(--leafbg)}.ladder div:nth-child(4){margin-left:15%;background:var(--ink);color:var(--bg)}
+.ladder b{font-family:"Baloo 2";font-size:20px;margin-right:8px}
+label.f{display:block;margin:10px 0 2px;font-weight:600}
+.row{display:flex;align-items:center;gap:12px}
+input[type=range]{flex:1;accent-color:var(--leaf);height:44px}
+input[type=number],select{font:16px Mukta,sans-serif;width:7.5em;padding:8px;border:2px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+select{width:100%}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--leaf);outline-offset:2px}
+.out{font-family:"Baloo 2";font-weight:800;white-space:nowrap}
+.huge{font-family:"Baloo 2";font-weight:800;font-size:clamp(34px,6vw,52px);line-height:1;color:var(--leaf)}
+button{font:700 16px Mukta,sans-serif;min-height:44px;padding:6px 16px;border-radius:999px;border:2px solid var(--ink);background:var(--card);color:var(--ink);cursor:pointer}
+button.on,button:hover{background:var(--ink);color:var(--bg)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:16px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:14px;color:var(--mut);font-weight:600}
+tr.win td{background:var(--leafbg);font-weight:700}
+.bars div{display:grid;grid-template-columns:5.5em minmax(0,1fr) 3.2em;gap:10px;align-items:center;margin:6px 0}
+.bars s{display:block;height:22px;border-radius:6px;background:var(--band);text-decoration:none}
+.bars .w s{background:var(--leaf)}
+.bars em{font-style:normal;font-weight:700;text-align:right}
+.chk label{display:flex;gap:10px;align-items:center;min-height:44px;border-bottom:1px solid var(--line)}
+.chk input{width:22px;height:22px;accent-color:var(--leaf)}
+.mk{display:grid;grid-template-columns:repeat(auto-fit,minmax(10em,1fr));gap:10px}
+.mk button{border-radius:12px;text-align:left;padding:10px 12px}
+.meter{height:14px;border-radius:7px;background:var(--line);overflow:hidden}.meter s{display:block;height:100%;background:var(--leaf);text-decoration:none}
+.foot{border-top:1px solid var(--line)}
+.rw{display:grid;grid-template-columns:10em minmax(0,1fr) 6.5em;gap:10px;align-items:center}
+.rw label{font-weight:600;line-height:1.2}
+.rw input[type=number]{width:100%}
+.rw.two{grid-template-columns:10em minmax(0,1fr) 3em}
+@media(max-width:820px){.hero,.cols{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.rw,.rw.two{grid-template-columns:minmax(0,1fr) 6em}.rw.two{grid-template-columns:minmax(0,1fr) 3em}.rw label{grid-column:1/-1;margin-top:6px}table{font-size:13px}th,td{padding:6px 4px}.kv b{font-size:18px}.stamp{width:70px;height:70px;font-size:11px}}
+@media(prefers-reduced-motion:no-preference){.label{transition:transform .25s}.label.pop{transform:rotate(-.6deg) scale(1.01)}}
+</style>
+</head>
+<body>
+<header class="band top">
+ <div class="wrap hero">
+  <div>
+   <h1>Konkan Alphonso: an export plan you can play with</h1>
+   <p>A working prototype of the six-step export business model from Session 8. Change any number in the steps below and the export label updates.</p>
+   <p class="small">Market data: ITC Trade Map (HS 080450, 2025) and MacMap. Costs, prices and scores marked “illustrative” are classroom examples.</p>
+   <div class="btns"><button type="button" id="reset">Reset to class example</button></div>
+     </div>
+  <div class="label" id="label" aria-live="polite">
+   <div class="hd"><div><div class="small">Export plan · season 2027</div><div class="brand">Konkan Alphonso (Hapus)</div><div class="small">HS 0804.50 · India line 0804.50.21 · 12 fruits, <span id="lKg">3.5</span> kg a box</div></div><div class="stamp">GI<br>KONKAN<br>2018</div></div>
+   <div class="grid2">
+    <div class="kv"><span>Ship to</span><b id="lMkt">UK</b></div>
+    <div class="kv"><span>Edge (RCA · price premium)</span><b id="lEdge">2.2 · 4.1×</b></div>
+    <div class="kv"><span>Boxes this season</span><b id="lBoxes">5,000</b></div>
+    <div class="kv"><span>Export revenue</span><b id="lRev">$210,000</b></div>
+    <div class="kv"><span>Profit (base case)</span><b class="big" id="lProf">₹35 lakh</b></div>
+    <div class="kv"><span>Break-even</span><b id="lBe">1,500 boxes</b></div>
+    <div class="kv"><span>Worst-case profit</span><b id="lWorst">₹5 lakh</b></div>
+    <div class="kv"><span>Ready for the border</span><b id="lReady">40%</b></div>
+   </div>
+  </div>
+ </div>
+</header>
+
+<main class="band"><div class="wrap">
+ <nav class="tabs" aria-label="Six steps">
+  <a href="#product" data-t="product"><i>1</i>Product &amp; code</a>
+  <a href="#edge" data-t="edge"><i>2</i>Prove the edge</a>
+  <a href="#markets" data-t="markets"><i>3</i>Pick the market</a>
+  <a href="#volume" data-t="volume"><i>4</i>How much</a>
+  <a href="#money" data-t="money"><i>5</i>Money &amp; risk</a>
+  <a href="#access" data-t="access"><i>6</i>Can we get in?</a>
+ </nav>
+
+ <section class="panel" id="p-product">
+  <h2>Step 1 · Find the product's address</h2>
+  <div class="cols">
+   <div class="ladder">
+    <div><b>08</b>Edible fruit and nuts · chapter</div>
+    <div><b>0804</b>Dates, figs, mangoes, guavas … · heading</div>
+    <div><b>0804.50</b>Guavas, mangoes and mangosteens · same in every country (Trade Map, MacMap)</div>
+    <div><b>0804.50.21</b>Alphonso (Hapus) · India's own 8-digit line</div>
+   </div>
+   <div class="box sun"><h3>What exactly are we selling?</h3><p>Fresh, GI-tagged Alphonso from Ratnagiri, Sindhudurg, Palghar, Thane and Raigad, picked mid-April to June, flown in gift boxes of 12.</p><p>World data stops at 6 digits, so “mango” imports also include guavas and mangosteens. Alphonso itself is visible only in India's national data.</p><p class="small">Not pulp: pulp is a different business (sea freight, all year, factory buyers).</p></div>
+  </div>
+ </section>
+
+ <section class="panel" id="p-edge">
+  <h2>Step 2 · Do we have an edge?</h2>
+  <div class="cols">
+   <div class="box">
+    <h3>Revealed comparative advantage</h3>
+    <label class="f" for="shP">India's share of world mango exports (%)</label>
+    <div class="row"><input type="range" id="shP" min="0.5" max="15" step="0.1"><input type="number" id="shPn" min="0.5" max="15" step="0.1" aria-label="India's share of world mango exports"></div>
+    <label class="f" for="shW">India's share of all world exports (%)</label>
+    <div class="row"><input type="range" id="shW" min="0.5" max="5" step="0.1"><input type="number" id="shWn" min="0.5" max="5" step="0.1" aria-label="India's share of all world exports"></div>
+    <p>RCA = <span id="rcaSum"></span> = <span class="out" id="rca"></span> <span id="rcaBand"></span></p>
+   </div>
+   <div class="box leaf">
+    <h3>The GI premium</h3>
+    <p>Alphonso box price <span class="out" id="ppBox"></span> ÷ <span id="ppKg"></span> kg = <span class="out" id="ppPerKg"></span> per kg</p>
+    <p>Average UK mango import price: <b>$2.93 per kg</b> (Trade Map 2025). India's average there: $2.86; Pakistan's: $4.61.</p>
+    <div class="huge" id="prem"></div><p>Alphonso's price over the UK average. Sell story, not volume.</p>
+   </div>
+  </div>
+  <div class="box" style="margin-top:20px"><h3>Rivals (export similarity)</h3><p><b>Mexico</b> ≈ ⅔ of US mango imports, almost all year · <b>Pakistan</b> same season, same Gulf buyers, sells 1.8× India's value in the UK · <b>Brazil, Peru</b> lead UK volumes, mostly in India's off-season. Our defence: own the April–June window and the GI name.</p></div>
+ </section>
+
+ <section class="panel" id="p-markets">
+  <h2>Step 3 · Score the markets</h2>
+  <p>Scores follow written rules applied to the evidence (size, growth and price from Trade Map; access from MacMap; route from flight time and 2026 news). Your weights decide the winner.</p>
+  <div class="btns" id="presets"></div>
+  <div class="cols">
+   <div class="box" id="wts"></div>
+   <div class="box"><h3 id="winTitle"></h3><div class="bars" id="bars"></div><p class="small">Weights are rescaled to add up to 100%.</p></div>
+  </div>
+  <div class="box scroll" style="margin-top:20px"><table id="ev"></table></div>
+ </section>
+
+ <section class="panel" id="p-volume">
+  <h2>Step 4 · How much can we sell?</h2>
+  <div class="cols">
+   <div class="box sun">
+    <h3>Bottom-up: what can we ship?</h3>
+    <label class="f" for="bpw">Boxes a week</label><div class="row"><input type="range" id="bpw" min="100" max="2000" step="50"><input type="number" id="bpwn" min="100" max="2000" step="50" aria-label="Boxes a week"></div>
+    <label class="f" for="wks">Weeks of season</label><div class="row"><input type="range" id="wks" min="4" max="14" step="1"><input type="number" id="wksn" min="4" max="14" step="1" aria-label="Weeks of season"></div>
+    <label class="f" for="usd">Export price a box (US$)</label><div class="row"><input type="range" id="usd" min="20" max="70" step="1"><input type="number" id="usdn" min="20" max="70" step="1" aria-label="Export price a box"></div>
+    <p><span id="volSum"></span></p><div class="huge" id="rev"></div>
+   </div>
+   <div class="box leaf">
+    <h3>Top-down: is that realistic?</h3>
+    <p>UK mango imports: <b>$309 m</b> · India's share 6.0%: <b>$18.4 m</b> · Alphonso ≈ 1 in 5: <b>$3.7 m</b> (assumption)</p>
+    <p>Our sales ÷ UK Alphonso market =</p><div class="huge" id="share"></div><p id="shareTxt"></p>
+    <div class="meter" aria-hidden="true"><s id="shareBar"></s></div>
+    <p class="small" style="margin-top:8px">Under 2%: aim higher. 2–10%: ambitious but believable. Over 15%: cut the plan.</p>
+   </div>
+  </div>
+ </section>
+
+ <section class="panel" id="p-money">
+  <h2>Step 5 · Money and risk</h2>
+  <div class="cols">
+   <div class="box">
+    <h3>Cost of one box (₹, illustrative)</h3>
+    <div id="costs"></div>
+    <div class="rw"><label for="fx">₹ per $</label><span class="small">class example: 83.3</span><input type="number" id="fx" min="70" max="100" step="0.1"></div>
+    <div class="rw"><label for="fixed">Fixed costs a year (₹ lakh)</label><input type="range" id="fixed" min="5" max="40" step="1"><input type="number" id="fixedn" min="5" max="40" step="1" aria-label="Fixed costs"></div>
+   </div>
+   <div class="box leaf">
+    <h3>Margin and break-even</h3>
+    <p>Price <span class="out" id="mPrice"></span> − costs <span class="out" id="mCost"></span> = margin</p>
+    <div class="huge" id="margin"></div>
+    <p>Break-even = fixed costs ÷ margin = <span class="out" id="be"></span> (<span id="bePct"></span> of the plan)</p>
+   </div>
+  </div>
+  <div class="box scroll" style="margin-top:20px"><h3>Stress test</h3><table id="stress"></table><p class="small">Freight shock: 20% fewer boxes move, ₹500 a box extra cost. Rejection: one lot lost (30% fewer boxes paid), ₹200 a box extra testing.</p></div>
+ </section>
+
+ <section class="panel" id="p-access">
+  <h2>Step 6 · Can we get in?</h2>
+  <p>Pick a market to see its tariff and non-tariff barriers (MacMap and the treatment protocols for Indian mangoes). Then tick what you have ready.</p>
+  <div class="mk" id="mkBtns"></div>
+  <div class="cols" style="margin-top:16px">
+   <div class="box" id="accBox"></div>
+   <div class="box chk"><h3>Readiness checklist</h3><div id="chk"></div><p style="margin-top:10px">Ready: <span class="out" id="readyTxt"></span></p><div class="meter"><s id="readyBar"></s></div></div>
+  </div>
+ </section>
+</div></main>
+
+<footer class="band foot"><div class="wrap small">Built for Trade Analytics, Session 8. Sources: ITC Trade Map (HS 080450 importing economies and UK imports by exporter, 2025); MacMap; APEDA; MSAMB treatment list; Yokohama Plant Protection Association (Japan suspension, March 2026). Classroom tool: verify every rate in MacMap before quoting a buyer.</div></footer>
+
+<script>
+{
+const DEF={shP:4,shW:1.8,bpw:500,wks:10,usd:42,kg:3.5,fx:83.3,fixed:15,c:[1450,300,150,250,350],w:[25,20,20,20,15],acc:"UK",chk:{}};
+let S;try{S=Object.assign(JSON.parse(JSON.stringify(DEF)),JSON.parse(localStorage.getItem("alph")||"{}"))}catch(e){S=JSON.parse(JSON.stringify(DEF))}
+const save=()=>{try{localStorage.setItem("alph",JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const nf=n=>Math.round(n).toLocaleString("en-IN");const usdf=n=>"$"+Math.round(n).toLocaleString("en-US");
+const lakh=r=>{const v=r/1e5;return (v<0?"−":"")+"₹"+Math.abs(v).toFixed(Math.abs(v)<10?1:0)+" lakh"};
+const COSTN=["Fruit (farm gate)","Grade and pack","Treatment and phyto","Transport and handling","Risk buffer"];
+const MK={US:{imp:1023,g:7.3,p:1.51,acc:"Irradiation",rt:"16 h flight",n:"United States"},UK:{imp:309,g:13.8,p:2.93,acc:"Treatment",rt:"10 h flight",n:"United Kingdom"},UAE:{imp:115,g:5.9,p:1.49,acc:"Certificate",rt:"Hormuz route",n:"UAE"},Japan:{imp:30,g:-1.0,p:4.87,acc:"Suspended",rt:"9 h flight",n:"Japan"},NL:{imp:392,g:1.4,p:1.42,acc:"Treatment",rt:"9 h flight",n:"Netherlands (EU)"}};
+const band=(x,c)=>{for(let i=0;i<c.length;i++)if(x<c[i])return i+1;return 5};
+const ACC={Suspended:1,Irradiation:2,Treatment:4,Certificate:5};
+const score=k=>{const m=MK[k];let r=5;if(m.rt.startsWith("16"))r-=1;if(m.rt.includes("Hormuz"))r-=3;return[band(m.imp,[50,150,400,800]),band(m.g,[0,3,7,11]),band(m.p,[1.5,2,3,4]),ACC[m.acc],r]};
+const CRIT=["Size","Growth","Price","Access","Route risk"];
+const PRE={"Growth-seeker":[25,20,20,20,15],"Risk-averse":[15,15,20,20,30],"Size-seeker":[50,10,15,15,10]};
+const ACCESS={
+ US:{t:"Low MFN duty; check the extra 10% US duty on Indian goods (2026) in MacMap",n:["Irradiation 400–1,000 Gy under USDA supervision","PPQ203 form must be exact: 15 lots refused in May 2025","Pre-clearance and port inspection"],risk:"Paperwork risk is high"},
+ UK:{t:"0% (India–UK CETA in force since 15 July 2026)",n:["Phytosanitary certificate","Pre-export vapour heat or hot-water treatment","Labels: origin, variety, importer"],risk:"Main risk: air cargo space in peak weeks"},
+ UAE:{t:"0% under India–UAE CEPA",n:["Phytosanitary certificate","Basic quality and labelling checks"],risk:"Route risk: Gulf freight up ≈ $4,000 a container in 2026"},
+ Japan:{t:"Tariff irrelevant for now",n:["Vapour heat treatment at approved facilities only","Imports suspended for certificates from 25 March 2026"],risk:"Closed until Japan accepts the treatment facilities"},
+ NL:{t:"EU tariff on fresh mangoes: check MacMap (India–EU FTA not yet in force)",n:["Phytosanitary certificate","Vapour heat treatment","Pesticide residue limits (EU MRLs)"],risk:"Netherlands is a hub: much fruit moves on to Germany"}};
+const CHK=["IEC and APEDA registration","Approved pack-house","Treatment slot booked","Buyer contract with payment terms","Cargo space booked","Labels and GI logo printed","Residue test report","Cargo and rejection insurance"];
+
+const bind=(id,key,fmt)=>{const a=$(id),b=$(id+"n");const set=v=>{S[key]=+v;a.value=S[key];if(b)b.value=S[key];render()};a.value=S[key];if(b)b.value=S[key];a.addEventListener("input",e=>set(e.target.value));if(b)b.addEventListener("change",e=>{let v=+e.target.value;v=Math.min(+b.max,Math.max(+b.min,v||+b.min));set(v)})};
+["shP","shW","bpw","wks","usd","fixed"].forEach(k=>bind(k,k));
+$("fx").value=S.fx;$("fx").addEventListener("change",e=>{S.fx=Math.min(100,Math.max(70,+e.target.value||83.3));e.target.value=S.fx;render()});
+
+$("costs").innerHTML=COSTN.map((n,i)=>`<div class="rw"><label for="c${i}">${n}</label><input type="range" id="c${i}" min="0" max="${i?1000:3000}" step="25"><input type="number" id="c${i}n" min="0" max="${i?1000:3000}" step="25" aria-label="${n}"></div>`).join("");
+COSTN.forEach((n,i)=>{const a=$("c"+i),b=$("c"+i+"n");const set=v=>{S.c[i]=+v;a.value=v;b.value=v;render()};a.value=S.c[i];b.value=S.c[i];a.addEventListener("input",e=>set(e.target.value));b.addEventListener("change",e=>set(Math.max(0,+e.target.value||0)))});
+
+$("wts").innerHTML="<h3>Your weights</h3>"+CRIT.map((n,i)=>`<div class="rw two"><label for="w${i}">${n}</label><input type="range" id="w${i}" min="0" max="60" step="5"><b class="out"><span id="w${i}v"></span>%</b></div>`).join("");
+CRIT.forEach((n,i)=>{const a=$("w"+i);a.value=S.w[i];a.addEventListener("input",e=>{S.w[i]=+e.target.value;render()})});
+$("presets").innerHTML=Object.keys(PRE).map(k=>`<button type="button" data-p="${k}">${k}</button>`).join("");
+$("presets").addEventListener("click",e=>{const k=e.target.dataset.p;if(!k)return;S.w=PRE[k].slice();CRIT.forEach((n,i)=>$("w"+i).value=S.w[i]);render()});
+
+$("mkBtns").innerHTML=Object.keys(MK).map(k=>`<button type="button" data-m="${k}">${MK[k].n}</button>`).join("");
+$("mkBtns").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.acc=b.dataset.m;render()});
+$("chk").innerHTML=CHK.map((c,i)=>`<label><input type="checkbox" id="k${i}">${c}</label>`).join("");
+CHK.forEach((c,i)=>{const k=$("k"+i);k.checked=!!S.chk[i];k.addEventListener("change",()=>{S.chk[i]=k.checked;render()})});
+
+const calc=()=>{
+ const rca=S.shP/S.shW,perKg=S.usd/S.kg,prem=perKg/2.93;
+ const tw=S.w.reduce((a,b)=>a+b,0)||1;
+ const res=Object.keys(MK).map(k=>({k,s:score(k).reduce((a,v,i)=>a+v*S.w[i]/tw,0)})).sort((a,b)=>b.s-a.s);
+ const boxes=S.bpw*S.wks,rev=boxes*S.usd,priceR=Math.round(S.usd*S.fx/10)*10,cost=S.c.reduce((a,b)=>a+b,0),m=priceR-cost,fixed=S.fixed*1e5;
+ const sc=[["Base",boxes,m],["Freight shock",Math.round(boxes*.8),m-500],["Rejection",Math.round(boxes*.7),m-200]].map(([n,b,mm])=>({n,b,mm,c:b*mm,p:b*mm-fixed}));
+ const ready=Math.round(100*CHK.filter((c,i)=>S.chk[i]).length/CHK.length);
+ return{rca,perKg,prem,res,boxes,rev,priceR,cost,m,fixed,sc,ready,share:rev/3.7e6};
+};
+const rcaBand=r=>r<1?"no advantage":r<2?"weak":r<4?"medium":"strong";
+
+function render(){
+ const R=calc();
+ $("rcaSum").textContent=`${S.shP.toFixed(1)}% ÷ ${S.shW.toFixed(1)}%`;$("rca").textContent=R.rca.toFixed(1);$("rcaBand").textContent="→ "+rcaBand(R.rca);
+ $("ppBox").textContent="$"+S.usd;$("ppKg").textContent=S.kg;$("ppPerKg").textContent="$"+R.perKg.toFixed(2);$("prem").textContent=R.prem.toFixed(1)+"×";
+ CRIT.forEach((n,i)=>$("w"+i+"v").textContent=S.w[i]);
+ [...$("presets").children].forEach(b=>b.classList.toggle("on",PRE[b.dataset.p].join()===S.w.join()));
+ const top=R.res[0],mx=5;
+ $("winTitle").textContent=`${MK[top.k].n} wins with ${top.s.toFixed(2)} out of 5`;
+ $("bars").innerHTML=R.res.map((r,i)=>`<div class="${i?"":"w"}"><span>${r.k}</span><s style="width:${(r.s/mx*100).toFixed(1)}%"></s><em>${r.s.toFixed(2)}</em></div>`).join("");
+ $("ev").innerHTML=`<tr><th>Market</th><th>Imports $ m</th><th>Growth %/yr</th><th>Price $/kg</th><th>Access</th><th>Route</th><th>Scores (size · growth · price · access · route)</th></tr>`+Object.keys(MK).map(k=>{const m=MK[k];return`<tr class="${k===top.k?"win":""}"><td>${m.n}</td><td>${nf(m.imp)}</td><td>${m.g>0?"+":""}${m.g.toFixed(1)}</td><td>${m.p.toFixed(2)}</td><td>${m.acc}</td><td>${m.rt}</td><td>${score(k).join(" · ")}</td></tr>`}).join("");
+ $("volSum").textContent=`${nf(S.bpw)} boxes × ${S.wks} weeks = ${nf(R.boxes)} boxes (${(R.boxes*S.kg/1000).toFixed(1)} t) × $${S.usd} =`;
+ $("rev").textContent=usdf(R.rev);
+ const sh=R.share*100;$("share").textContent=sh.toFixed(1)+"%";
+ $("shareTxt").textContent=`About $1 in every $${Math.max(1,Math.round(1/R.share))} the UK spends on Alphonso. `+(sh<2?"Aim higher.":sh<=10?"Ambitious but believable.":sh<=15?"Stretching: check capacity.":"Too big: cut the plan.");
+ $("shareBar").style.width=Math.min(100,sh/15*100)+"%";
+ $("mPrice").textContent="₹"+nf(R.priceR);$("mCost").textContent="₹"+nf(R.cost);
+ $("margin").textContent=(R.m<0?"−":"")+"₹"+nf(Math.abs(R.m))+" a box";$("margin").style.color=R.m>0?"":"var(--red)";
+ const be=R.m>0?Math.ceil(R.fixed/R.m):Infinity;
+ $("be").textContent=isFinite(be)?nf(be)+" boxes":"never (margin ≤ 0)";$("bePct").textContent=isFinite(be)?Math.round(be/R.boxes*100)+"%":"—";
+ $("stress").innerHTML=`<tr><th></th>${R.sc.map(s=>`<th>${s.n}</th>`).join("")}</tr><tr><td>Boxes sold</td>${R.sc.map(s=>`<td>${nf(s.b)}</td>`).join("")}</tr><tr><td>× Margin a box</td>${R.sc.map(s=>`<td>₹${nf(s.mm)}</td>`).join("")}</tr><tr><td>= Contribution</td>${R.sc.map(s=>`<td>${lakh(s.c)}</td>`).join("")}</tr><tr><td>− Fixed costs</td>${R.sc.map(()=>`<td>${lakh(R.fixed)}</td>`).join("")}</tr><tr><td><b>= Profit</b></td>${R.sc.map(s=>`<td style="color:${s.p<0?"var(--red)":"inherit"}"><b>${lakh(s.p)}</b></td>`).join("")}</tr>`;
+ [...$("mkBtns").children].forEach(b=>b.classList.toggle("on",b.dataset.m===S.acc));
+ const a=ACCESS[S.acc];
+ $("accBox").innerHTML=`<h3>${MK[S.acc].n}</h3><p><b>Tariff:</b> ${a.t}</p><p><b>Non-tariff measures:</b></p><ul>${a.n.map(x=>`<li>${x}</li>`).join("")}</ul><p class="box ${S.acc==="Japan"||S.acc==="UAE"?"red":"sun"}" style="margin:0">${a.risk}</p>`;
+ $("readyTxt").textContent=R.ready+"%";$("readyBar").style.width=R.ready+"%";
+ $("lKg").textContent=S.kg;$("lMkt").textContent=MK[top.k].n;
+ $("lEdge").textContent=`${R.rca.toFixed(1)} · ${R.prem.toFixed(1)}×`;
+ $("lBoxes").textContent=nf(R.boxes);$("lRev").textContent=usdf(R.rev);
+ $("lProf").textContent=lakh(R.sc[0].p);$("lProf").classList.toggle("bad",R.sc[0].p<0);
+ $("lBe").textContent=isFinite(be)?nf(be)+" boxes":"never";
+ const worst=Math.min(...R.sc.map(s=>s.p));$("lWorst").textContent=lakh(worst);$("lWorst").classList.toggle("bad",worst<0);
+ $("lReady").textContent=R.ready+"%";
+ const L=$("label");L.classList.add("pop");clearTimeout(L._t);L._t=setTimeout(()=>L.classList.remove("pop"),250);
+ save();
+}
+
+const show=()=>{let t=(location.hash||"#product").slice(1);if(!$("p-"+t))t="product";document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+t));document.querySelectorAll(".tabs a").forEach(a=>{if(a.dataset.t===t)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")})};
+window.addEventListener("hashchange",show);
+
+$("reset").addEventListener("click",()=>{S=JSON.parse(JSON.stringify(DEF));try{localStorage.removeItem("alph")}catch(e){}
+ ["shP","shW","bpw","wks","usd","fixed"].forEach(k=>{$(k).value=S[k];$(k+"n").value=S[k]});$("fx").value=S.fx;
+ S.c.forEach((v,i)=>{$("c"+i).value=v;$("c"+i+"n").value=v});S.w.forEach((v,i)=>$("w"+i).value=v);CHK.forEach((c,i)=>$("k"+i).checked=false);render()});
+show();render();
+}
+</script>
+</body>
+</html>
